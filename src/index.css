@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Cinzel', serif;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="number"],
+  select {
+    @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white;
+    border-width: 1px;
+    padding: 0.5rem;
+  }
+
+  select option {
+    @apply dark:bg-gray-800 dark:text-white;
+  }
+}
+
+.dark {
+  @apply bg-gray-900 text-white;
+}
