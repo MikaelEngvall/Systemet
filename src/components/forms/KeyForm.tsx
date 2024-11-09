@@ -30,8 +30,8 @@ export function KeyForm({ onSubmit, initialData, buttonText = 'Save', readOnly =
     if (!readOnly) {  // If the form is not in read-only mode
       onSubmit({
         ...formData,  // Include all the form data
-        selectedApartmentId: formData.apartmentId,  // Include selected apartment ID
-        selectedTenantId: formData.tenantId,  // Include selected tenant ID
+        selectedApartmentId: formData.apartmentId?.toString(),  // Include selected apartment ID
+        selectedTenantId: formData.tenantId?.toString(),  // Include selected tenant ID
       });
     }
   };
