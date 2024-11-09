@@ -29,3 +29,12 @@ export interface Key {
   apartmentId?: number;
   tenantId?: number;
 }
+export interface User {
+  id?: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: 'superuser' | 'admin' | 'maintenance' | 'viewer';
+  createdAt?: string;
+}
