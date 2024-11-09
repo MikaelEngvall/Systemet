@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Upload, AlertCircle } from 'lucide-react';
-import * as XLSX from 'xlsx';
-import { useDatabase } from '../hooks/useDatabase';
-import type { Tenant, Apartment } from '../types';
+import { Upload, AlertCircle } from 'lucide-react'; // Importing icons for file upload button and error display
+import * as XLSX from 'xlsx'; // Importing the XLSX library to process Excel files
+import { useDatabase } from '../hooks/useDatabase'; // Custom hook for database operations
+import type { Tenant, Apartment } from '../types'; // Type imports for Tenant and Apartment objects
 
+// Interface defining the structure of tenant data in the Excel file
 interface ExcelTenant {
   firstName: string;
   lastName: string;
@@ -17,6 +18,7 @@ interface ExcelTenant {
   apartmentAptNumber?: string;
 }
 
+// Interface defining the structure of apartment data in the Excel file
 interface ExcelApartment {
   street: string;
   number: string;
@@ -26,20 +28,22 @@ interface ExcelApartment {
   city: string;
 }
 
+// ImportData component for importing tenant and apartment data from an Excel file
 export function ImportData() {
-  const [error, setError] = useState<string | null>(null);
-  const [importing, setImporting] = useState(false);
-  const { insertItem: insertTenant } = useDatabase<Tenant>('tenants');
-  const { insertItem: insertApartment, items: apartments } = useDatabase<Apartment>('apartments');
+  const [error, setError] = useState<string | null>(null); // Error message state
+  const [importing, setImporting] = useState(false); // State to manage the import process status
+  const { insertItem: insertTenant } = useDatabase<Tenant>('tenants'); // Function to insert tenant records
+  const { insertItem: insertApartment, items: apartments } = useDatabase<Apartment>('apartments'); // Insert and fetch apartment records
 
+  // Function to process and insert apartment and tenant data from the Excel file
   const processExcelData = async (data: any[]) => {
     try {
-      // First, process apartments to ensure they exist
+      // Process apartments first and ensure each is unique using a Map
       const uniqueApartments = new Map<string, ExcelApartment>();
       
       data.forEach((row) => {
         if (row.street && row.number && row.apartmentNumber) {
-          const key = `${row.street}-${row.number}-${row.apartmentNumber}`;
+          const key = `${row.street}-${row.number}-${row.apartmentNumber}`; // Unique key for each apartment
           if (!uniqueApartments.has(key)) {
             uniqueApartments.set(key, {
               street: row.street,
@@ -53,20 +57,21 @@ export function ImportData() {
         }
       });
 
-      // Insert apartments and keep track of their IDs
+      // Insert each apartment into the database and map its unique ID
       const apartmentMap = new Map<string, string>();
       for (const [key, apt] of uniqueApartments.entries()) {
         const newApartment = await insertApartment(apt);
         apartmentMap.set(key, newApartment.id!);
       }
 
-      // Process tenants and link them to apartments
+      // Process tenant data, linking each tenant to their apartment if available
       for (const row of data) {
         if (row.firstName && row.lastName && row.personalNumber) {
           const apartmentKey = row.street && row.number && row.apartmentNumber
             ? `${row.street}-${row.number}-${row.apartmentNumber}`
             : null;
 
+          // Tenant object with fields from the Excel row and apartment link if applicable
           const tenant: Partial<Tenant> = {
             firstName: row.firstName,
             lastName: row.lastName,
@@ -87,34 +92,35 @@ export function ImportData() {
     }
   };
 
+  // Handle file upload event and initiate processing of the Excel file
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
-      setImporting(true);
+      setImporting(true); // Set importing status to true to indicate processing
       setError(null);
 
-      const reader = new FileReader();
+      const reader = new FileReader(); // FileReader API to read the uploaded file
       reader.onload = async (e) => {
         try {
-          const data = new Uint8Array(e.target?.result as ArrayBuffer);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+          const data = new Uint8Array(e.target?.result as ArrayBuffer); // Convert file to byte array
+          const workbook = XLSX.read(data, { type: 'array' }); // Read workbook data from byte array
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]]; // Access the first sheet in workbook
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet); // Convert sheet data to JSON format
 
-          await processExcelData(jsonData);
+          await processExcelData(jsonData); // Call the function to insert data into the database
           alert('Data imported successfully!');
-          event.target.value = ''; // Reset file input
+          event.target.value = ''; // Reset file input after successful import
         } catch (err) {
           console.error('Error reading Excel file:', err);
           setError('Failed to process Excel file. Please check the format.');
         } finally {
-          setImporting(false);
+          setImporting(false); // Reset importing status
         }
       };
 
-      reader.readAsArrayBuffer(file);
+      reader.readAsArrayBuffer(file); // Read file as ArrayBuffer for processing
     } catch (err) {
       console.error('Error handling file upload:', err);
       setError('Failed to read file');
@@ -122,6 +128,7 @@ export function ImportData() {
     }
   };
 
+  // Render component UI, including file upload button and error messages
   return (
     <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
       <div className="mb-4">
@@ -137,6 +144,7 @@ export function ImportData() {
       </div>
 
       <div className="relative">
+        {/* File input for uploading the Excel file */}
         <input
           type="file"
           accept=".xlsx,.xls"
@@ -152,11 +160,12 @@ export function ImportData() {
           }`}
           disabled={importing}
         >
-          <Upload className="w-5 h-5 mr-2" />
+          <Upload className="w-5 h-5 mr-2" /> {/* Upload icon */}
           {importing ? 'Importing...' : 'Choose Excel File'}
         </button>
       </div>
 
+      {/* Error message displayed if any errors occur during file processing */}
       {error && (
         <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/50 rounded-md flex items-start">
           <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 mr-2 flex-shrink-0 mt-0.5" />
