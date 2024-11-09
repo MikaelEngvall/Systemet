@@ -139,7 +139,7 @@ export function KeyForm({ onSubmit, initialData, buttonText = 'Save', readOnly =
             type="submit"
             className="bg-brand-light dark:bg-brand-dark text-white px-4 py-2 rounded-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
-            {buttonText}  // Display custom button text (default: "Save")
+            {buttonText}
           </button>
         </div>
       )}

@@ -123,7 +123,7 @@ export function UserForm({ onSubmit, initialData, buttonText = 'Save' }: UserFor
           type="submit"
           className="bg-brand-light dark:bg-brand-dark text-white px-4 py-2 rounded-md hover:opacity-90"
         >
-          {buttonText}  // Display text based on 'buttonText' prop or default
+          {buttonText}
         </button>
       </div>
     </form>
