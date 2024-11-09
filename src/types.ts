@@ -1,5 +1,5 @@
 export interface Tenant {
-  id?: number;
+  id?: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
@@ -11,7 +11,7 @@ export interface Tenant {
 }
 
 export interface Apartment {
-  id?: number;
+  id?: string;
   street: string;
   number: string;
   apartmentNumber: string;
